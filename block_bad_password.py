@@ -2,6 +2,7 @@ import subprocess
 import re
 from collections import defaultdict
 from datetime import datetime
+from firewall import Firewall
 
 # Threshold for blocking the IP
 BLOCK_THRESHOLD = 5
@@ -9,19 +10,8 @@ BLOCK_THRESHOLD = 5
 # Dictionary to store the count of occurrences for each IP address
 ip_count = defaultdict(int)
 
-# Command to block the IP using iptables (you can modify for nftables if needed)
-def block_ip(ip):
-    print(f"Blocking IP: {ip}")
-    subprocess.run(["iptables", "-I", "INPUT", "-s", ip, "-j", "DROP"], check=True)
-    # Optionally log the blocked IP
-    with open("/var/log/ip_block.log", "a") as log_file:
-        log_file.write(f"{datetime.now()} - Blocked IP {ip} due to > 5 attempts\n")
-
 # Regular expression to extract IP from log line
 ip_regex = re.compile(r'([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)')
-
-clear_iptable_rule = ['iptables', '-F' , 'INPUT']
-subprocess.run(clear_iptable_rule, check=True)
 
 command = ['logread', '-e', "Bad password", '-S', '100']
 # Continuously read the log lines from the logread command
